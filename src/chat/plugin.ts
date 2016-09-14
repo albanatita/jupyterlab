@@ -6,10 +6,10 @@
 'use strict';
 
 import WebSocket = require('ws');
- *  /
+ */
 
 import {
-	FloatContextManager
+	Context
 }
 from './floatContext';
 
@@ -85,10 +85,6 @@ import {
 }
 from '../services';
 
-import {
-	WidgetTracker
-}
-from '../widgettracker';
 
 import {
 	NotebookPanel
@@ -152,9 +148,9 @@ function activateChat(app : JupyterLab, services : IServiceManager, rendermime :
 		keymap
 	} = app;
 	let category = 'Chat';
-	let contextManager = new FloatContextManager({
+/* 	let contextManager = new FloatContextManager({
 			manager : manager
-		});
+		}); */
 	let specs = services.kernelspecs;
 	console.log(specs.kernelspecs);
 	let kernelName = specs.default;
@@ -170,9 +166,9 @@ function activateChat(app : JupyterLab, services : IServiceManager, rendermime :
 	let command : string;
 
 	// Set the source of the code inspector to the current console.
-	tracker.activeWidgetChanged.connect((sender : any, panel : NotebookPanel) => {
+/* 	tracker.activeWidgetChanged.connect((sender : any, panel : NotebookPanel) => {
 		inspector.source = panel.content.inspectionHandler;
-	});
+	}); */
 
 	// Set the main menu title.
 	menu.title.label = 'Chat';
@@ -192,17 +188,22 @@ function activateChat(app : JupyterLab, services : IServiceManager, rendermime :
 			let path = `Chat-${counter}`;
 			//manager.startNew({ path:path, kernelName:kernelName }).then(session => {
 			let model = new NotebookModel();
-			var id = contextManager.createNew(path, model);
+			//var id = contextManager.createNew(path, model);
 			let panel = new NotebookPanel({
 					rendermime,
 					clipboard : clipboard,
 					renderer : renderer
 				});
-			contextManager.startSession(id, {
+			let context=new Context({
+				  manager: this._serviceManager,
+				  model:model,
+				  path:path
+				});
+			context.startSession({
 				path : 'toto',
 				kernelName : kernelName
 			});
-			panel.context = contextManager.getContext(id)as IDocumentContext < INotebookModel > ;
+			panel.context = context;
 			panel.content.model = model;
 			let chatManager = new ChatManager(panel);
 			chatManager.model = model;
@@ -212,7 +213,7 @@ function activateChat(app : JupyterLab, services : IServiceManager, rendermime :
 			panel.title.icon = `${LANDSCAPE_ICON_CLASS} ${CONSOLE_ICON_CLASS}`;
 			panel.id = 'test-1';
 			app.shell.addToMainArea(panel);
-			tracker.addWidget(panel);
+			//tracker.addWidget(panel);
 			let res : string;
 			connect().then(result => {
 				res = result;
@@ -236,9 +237,9 @@ function activateChat(app : JupyterLab, services : IServiceManager, rendermime :
 	commands.addCommand(command, {
 		label : 'Disconnect from channel',
 		execute : () => {
-			if (tracker.activeWidget) {
+/* 			if (tracker.activeWidget) {
 				tracker.activeWidget.dispose();
-			}
+			} */
 		}
 	});
 	palette.addItem({
